@@ -13,6 +13,8 @@ import AddStaff from './Components/pages/AddStaff';
 import ViewStaff from './Components/pages/ViewStaff';
 import UpdateStaff from './Components/pages/UpdateStaff';
 import AddDepartment from './Components/pages/AddDepartment';
+import AddToDepartment from './Components/pages/AddToDepartment';
+
 
 function App() {
   return (
@@ -28,6 +30,8 @@ function App() {
         <Route path='/add-staff' element={<AddStaff />} />
         <Route path='/view-staff' element={<ViewStaff />} />
         <Route path='/add-department' element={<AddDepartment/>}></Route>
+        <Route path='/add-to-department' element={<AddToDepartment/>}></Route>
+
         <Route path="/update-staff/:id" element={<UpdateStaff />} />
         <Route path='/staff-details' element={<StaffDetails />} /> {/* Add route for StaffDetails */}
       </Routes>
