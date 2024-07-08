@@ -10,6 +10,8 @@ const AddStaff = () => {
     role: 'Admin',
     email: '',
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const navigate = useNavigate();
 
@@ -23,12 +25,14 @@ const AddStaff = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');
 
     try {
       const response = await axios.post('http://localhost:5000/add-staff', formData);
+      setLoading(false);
       if (response.data.success) {
         alert('Staff added successfully');
-        // Clear form
         setFormData({
           username: '',
           password: '',
@@ -36,10 +40,11 @@ const AddStaff = () => {
           email: '',
         });
       } else {
-        alert(`Error adding staff: ${response.data.message}`);
+        setError(`Error adding staff: ${response.data.message}`);
       }
     } catch (error) {
-      alert(`Error adding staff: ${error.response ? error.response.data.message : error.message}`);
+      setLoading(false);
+      setError(`Error adding staff: ${error.response ? error.response.data.message : error.message}`);
     }
   };
 
@@ -50,6 +55,8 @@ const AddStaff = () => {
   return (
     <div className='add-employee-container'>
       <h2>Add Staff</h2>
+      {loading && <p>Loading...</p>}
+      {error && <p className="error-message">{error}</p>}
       <form onSubmit={handleSubmit}>
         <div className="form-group-row">
           <div className="form-group">
@@ -106,8 +113,10 @@ const AddStaff = () => {
             />
           </div>
         </div>
-        <button type="submit">Add Staff</button>
-        <button type="button" className="btn-secondary" onClick={handleCancel}>Cancel</button>
+        <div className="form-buttons">
+          <button type="submit" disabled={loading}>Add Staff</button>
+          <button type="button" className="btn-secondary" onClick={handleCancel} disabled={loading}>Cancel</button>
+        </div>
       </form>
     </div>
   );

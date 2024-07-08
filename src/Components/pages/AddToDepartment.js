@@ -6,6 +6,8 @@ const AddToDepartment = () => {
   const [users, setUsers] = useState([]);
   const [selectedDepartment, setSelectedDepartment] = useState('');
   const [selectedUser, setSelectedUser] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     // Fetch departments
@@ -13,18 +15,27 @@ const AddToDepartment = () => {
       .then(response => {
         setDepartments(response.data);
       })
-      .catch(error => console.error('Error fetching departments:', error));
+      .catch(error => {
+        console.error('Error fetching departments:', error);
+        setError('Failed to fetch departments');
+      });
 
     // Fetch users
     axios.get('http://localhost:5000/users')
       .then(response => {
         setUsers(response.data);
       })
-      .catch(error => console.error('Error fetching users:', error));
+      .catch(error => {
+        console.error('Error fetching users:', error);
+        setError('Failed to fetch users');
+      });
   }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');
+
     const data = {
       user_id: selectedUser,
       dept_id: selectedDepartment
@@ -32,16 +43,22 @@ const AddToDepartment = () => {
 
     axios.post('http://localhost:5000/add-to-department', data)
       .then(response => {
+        setLoading(false);
         alert(response.data.message);
         setSelectedDepartment('');
         setSelectedUser('');
       })
-      .catch(error => console.error('Error adding user to department:', error));
+      .catch(error => {
+        setLoading(false);
+        console.error('Error adding user to department:', error);
+        setError('Failed to add user to department');
+      });
   };
 
   return (
     <div className="add-to-department-container">
       <h2>Add User to Department</h2>
+      {error && <p className="error-message">{error}</p>}
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor="department">Select Department:</label>
@@ -75,7 +92,7 @@ const AddToDepartment = () => {
             ))}
           </select>
         </div>
-        <button type="submit">Add to Department</button>
+        <button type="submit" disabled={loading}>Add to Department</button>
       </form>
     </div>
   );

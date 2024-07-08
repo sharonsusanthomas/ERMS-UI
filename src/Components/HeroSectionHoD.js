@@ -4,11 +4,23 @@ import '../App.css';
 import { Button } from './Button';
 import './HeroSection.css';
 
-function HeroSectionHoD() {
+const HeroSectionHoD = () => {
   const navigate = useNavigate();
 
-  const handleStaffDetailsClick = () => {
-    navigate('/staff-details');
+  const handleCheckEventsClick = () => {
+    window.open('https://calendar.google.com', '_blank');
+  };
+
+  const handlePendingApprovalClick = () => {
+    navigate('/pending-approval');
+  };
+
+  const handleApprovedEventsClick = () => {
+    navigate('/approved-events');
+  };
+
+  const handleRejectedEventsClick = () => {
+    navigate('/rejected-events');
   };
 
   return (
@@ -21,6 +33,7 @@ function HeroSectionHoD() {
           className='btns'
           buttonStyle='btn--outline'
           buttonSize='btn--large'
+          onClick={handleCheckEventsClick}
         >
           CHECK EVENTS
         </Button>
@@ -28,9 +41,25 @@ function HeroSectionHoD() {
           className='btns'
           buttonStyle='btn--outline'
           buttonSize='btn--large'
-          onClick={handleStaffDetailsClick}
+          onClick={handlePendingApprovalClick}
         >
           Pending Approval
+        </Button>
+        <Button
+          className='btns'
+          buttonStyle='btn--outline'
+          buttonSize='btn--large'
+          onClick={handleApprovedEventsClick}
+        >
+          Approved Events
+        </Button>
+        <Button
+          className='btns'
+          buttonStyle='btn--outline'
+          buttonSize='btn--large'
+          onClick={handleRejectedEventsClick}
+        >
+          Rejected Events
         </Button>
       </div>
     </div>

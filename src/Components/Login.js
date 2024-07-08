@@ -1,74 +1,96 @@
-// src/Components/Login.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import './Login.css';
 
-const Login = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const navigate = useNavigate();
+function Login() {
+    const [values, setValues] = useState({ username: "", password: "" });
+    const navigate = useNavigate();
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
+    useEffect(() => {
+        setValues({ username: "", password: "" });
+    }, []);
 
-    try {
-      const response = await fetch('http://localhost:5000/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
-      });
+    const handleInput = (event) => {
+        setValues(prev => ({ ...prev, [event.target.name]: event.target.value }));
+    };
 
-      const data = await response.json();
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        setError('');
+        setLoading(true);
 
-      if (response.ok) {
-        if (data.role === 'Admin') {
-          navigate('/home');
-        } else if (data.role === 'HoD') {
-          navigate('/hod-home');
-        } else if (data.role === 'Staff') {
-          navigate('/staff-home');
-        } else {
-          setError('Unauthorized role');
+        try {
+            const response = await axios.post('http://localhost:5000/login', values, { withCredentials: true });
+            const data = response.data;
+
+            if (response.status === 200) {
+                localStorage.setItem('userName', values.username);
+                setValues({ username: "", password: "" });
+
+                switch (data.role) {
+                    case 'Admin':
+                        navigate('/home');
+                        break;
+                    case 'HoD':
+                        navigate('/hod-home');
+                        break;
+                    case 'Staff':
+                        navigate('/staff-home');
+                        break;
+                    default:
+                        setError('Unauthorized role');
+                }
+            } else {
+                setError(data.message || 'An error occurred. Please try again.');
+            }
+        } catch (err) {
+            console.error("Error:", err);
+            setError(err.response?.data?.message || 'An error occurred. Please try again.');
+        } finally {
+            setLoading(false);
         }
-      } else {
-        setError(data.message || 'An error occurred. Please try again.');
-      }
-    } catch (error) {
-      setError('An error occurred. Please try again.');
-    }
-  };
+    };
 
-  return (
-    <div className='login-container'>
-      <div className='login-box'>
-        <h2>Login</h2>
-        {error && <p className='error'>{error}</p>}
-        <form onSubmit={handleSubmit}>
-          <label htmlFor='username'>Username</label>
-          <input
-            type='text'
-            id='username'
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
-          <label htmlFor='password'>Password</label>
-          <input
-            type='password'
-            id='password'
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          <button type='submit'>Login</button>
-        </form>
-      </div>
-    </div>
-  );
-};
+    return (
+        <div className='login-container'>
+            <div className='login-form'>
+                <form onSubmit={handleSubmit}>
+                    <h2>Login</h2>
+                    {error && <p className="error-message">{error}</p>}
+                    <div className='form-group'>
+                        <label htmlFor='username'><strong>Username</strong></label>
+                        <input
+                            type='text'
+                            placeholder='Enter Username'
+                            name='username'
+                            value={values.username}
+                            onChange={handleInput}
+                            className='form-control'
+                            required
+                        />
+                    </div>
+                    <div className='form-group'>
+                        <label htmlFor='password'><strong>Password</strong></label>
+                        <input
+                            type='password'
+                            placeholder='Enter Password'
+                            name='password'
+                            value={values.password}
+                            onChange={handleInput}
+                            className='form-control'
+                            required
+                        />
+                    </div>
+                    <button type='submit' className='btn btn-success' disabled={loading}>
+                        {loading ? 'Logging in...' : 'Login'}
+                    </button>
+                </form>
+            </div>
+        </div>
+    );
+}
 
 export default Login;
